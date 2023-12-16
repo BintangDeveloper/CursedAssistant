@@ -59,3 +59,39 @@ module.exports = {
   message: message,
   msToTime: msToTime,
 };
+
+/*
+ * 
+ * 2860904294623386862
+ *
+ *
+*/
+
+const { PermissionsBitField } = require('discord.js');
+const { Config, Message } = require('./config.js');
+
+async function NeedPermission(interaction) {
+  const member = interaction.member;
+  const requiredPermissions = [
+    PermissionsBitField.Flags.Administrator
+  ];
+  
+  if (!member.permissions.has(requiredPermissions)) {
+    return interaction.reply({
+      ephemeral: true,
+      embeds: [{
+        color: Colors.error,
+        description: message().NeedPermission()
+      }]
+    });
+  }
+}
+
+function msToTime(duration) {
+  let seconds = Math.floor((duration / 1000) % 60);
+  let minutes = Math.floor((duration / (1000 * 60)) % 60);
+  let hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
+  let days = Math.floor((duration / (1000 * 60 * 60 * 24)) % 365);
+
+  return `${days}d ${hours}h ${minutes}m ${seconds}s`;
+}

@@ -1,29 +1,46 @@
-const { Permissions } = require('discord.js');
+const { PermissionsBitField } = require('discord.js');
+const { Colors, message } = require('../main.js');
 
 module.exports = {
     data: {
         name: 'xsend',
-        description: 'Send a message JSON to the channel.',
+        description: 'You should dont know',
         options: [
-            {
-                name: 'channel',
-                type: 7,
-                description: 'The channel where the message will be sent.',
-                required: true,
-            },
-            {
-                name: 'json',
-                type: 3,
-                description: 'The JSON format of the message.',
-                required: true,
-            }
+        {
+            name: 'channel',
+            type: 7,
+            description: 'The channel where the message will be sent.',
+            required: true,
+        },
+        {
+            name: 'json',
+            type: 3,
+            description: 'The json of the embedded message.',
+            required: true,
+        },
         ]
     },
     async execute(interaction) {
-        const member = interaction.member;
+        const member = interaction.member; // Get the member object
         const channel = interaction.options.getChannel('channel');
         const jsonString = interaction.options.getString('json');
+        
+        const requiredPermissions = [
+        PermissionsBitField.Flags.Administrator
+        ];
 
+        if (!member.permissions.has(requiredPermissions)) {
+            return interaction.reply(
+                {
+                    ephemeral: true,
+                    embeds: [{
+                        color: Colors.error,
+                        description: message().NeedPermission()
+                    }]
+                }
+            );
+        }
+        
         let parsedJSON;
         try {
             parsedJSON = JSON.parse(jsonString);
@@ -33,16 +50,7 @@ module.exports = {
                 content: 'Invalid JSON format. Please provide valid JSON.'
             });
         }
-
-        const requiredPermissions = Permissions.FLAGS.ADMINISTRATOR;
-
-        if (!member.permissions.has(requiredPermissions)) {
-            return interaction.reply({
-                ephemeral: true,
-                content: 'You need administrator permissions to use this command.'
-            });
-        }
-
+        
         try {
             await channel.send(parsedJSON);
             await interaction.reply({
@@ -52,5 +60,6 @@ module.exports = {
         } catch (error) {
             console.error('Error sending embed message:', error);
         }
+        
     },
 };
